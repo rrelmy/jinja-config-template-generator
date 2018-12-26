@@ -14,6 +14,7 @@ enum ConfigLevel {
 enum VariableType {
     Boolean,
     String,
+    Array,
     Transparent, // no escaping is applied, numbers for example
 }
 
@@ -56,6 +57,10 @@ fn type_of_value(value: &str) -> VariableType {
 
     if value.starts_with('"') {
         return VariableType::String;
+    }
+
+    if value.starts_with('[') {
+        return VariableType::Array;
     }
 
     VariableType::Transparent
@@ -136,14 +141,23 @@ fn variable_line(
 
     if variable_type == &VariableType::String {
         result.push_str("\"");
+    } else if variable_type == &VariableType::Array {
+        result.push_str("[");
     }
 
     result.push_str("{{ ");
     result.push_str(variable_name);
+
+    if variable_type == &VariableType::Array {
+        result.push_str(" | join(\",\")");
+    }
+
     result.push_str(" }}");
 
     if variable_type == &VariableType::String {
         result.push_str("\"");
+    } else if variable_type == &VariableType::Array {
+        result.push_str("]");
     }
 
     result
@@ -192,8 +206,13 @@ fn main() {
             variables.push_str(&section);
             variables.push_str(&"]\n");
         } else if is_config_line(&line) {
-            let (name, value, variable_type) = parse_config_line(&line);
+            let (name, mut value, variable_type) = parse_config_line(&line);
             //println!("Found config:\n  name: {}\n  value: {}\n", name, value)
+
+            // replace incomplete array values with an empty array (hacky workaround)
+            if variable_type == VariableType::Array && !value.ends_with(']') {
+                value = String::from("[]");
+            }
 
             let variable_name =
                 get_variable_name(config_prefix, &level, &section, &sub_section, &name);
