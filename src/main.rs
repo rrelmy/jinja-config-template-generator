@@ -85,6 +85,19 @@ fn get_variable_name(
     var
 }
 
+fn config_value(value: &str) -> String {
+    if value == "true" || value == "false" {
+        let mut result = String::new();
+        result.push('"');
+        result.push_str(value);
+        result.push('"');
+
+        return result;
+    }
+
+    String::from(value)
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
 
@@ -136,7 +149,7 @@ fn main() {
 
             variables.push_str(&variable_name);
             variables.push_str(&": ");
-            variables.push_str(&value);
+            variables.push_str(&config_value(&value));
             variables.push_str(&"\n");
 
             let prefix = get_line_prefix(&level);
