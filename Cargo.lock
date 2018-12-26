@@ -1,0 +1,4 @@
+[[package]]
+name = "ansible-template-generator"
+version = "0.1.0"
+

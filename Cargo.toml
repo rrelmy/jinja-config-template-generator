@@ -1,0 +1,7 @@
+[package]
+name = "ansible-template-generator"
+version = "0.1.0"
+authors = ["Rémy <git@rrelmy.ch>"]
+edition = "2018"
+
+[dependencies]
